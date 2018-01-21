@@ -15,7 +15,7 @@ copy_src_to_gopath:
 
 fmt:
 	find . \
-		-not -path "./$(GOPATHDIR)/*" \
+		-not \( -path "./$(GOPATHDIR)" -prune \) \
 		-name "*.go" \
 		-exec go fmt {} \;
 
