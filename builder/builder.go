@@ -39,11 +39,6 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 
 	// Accumulate any errors
 	var errs *packer.MultiError
-	errs = packer.MultiErrorAppend(errs, b.config.Config.AccessConfig.Prepare(&b.config.ctx)...)
-	errs = packer.MultiErrorAppend(errs,
-		b.config.Config.AMIConfig.Prepare(&b.config.Config.AccessConfig, &b.config.ctx)...)
-	errs = packer.MultiErrorAppend(errs, b.config.Config.BlockDevices.Prepare(&b.config.ctx)...)
-	errs = packer.MultiErrorAppend(errs, b.config.Config.RunConfig.Prepare(&b.config.ctx)...)
 	errs = packer.MultiErrorAppend(errs, b.config.Prepare(&b.config.ctx)...)
 
 	if b.config.Config.IsSpotInstance() && (b.config.Config.AMIENASupport || b.config.Config.AMISriovNetSupport) {

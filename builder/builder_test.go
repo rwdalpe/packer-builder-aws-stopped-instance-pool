@@ -8,13 +8,14 @@ import (
 
 func testConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"access_key":    "foo",
-		"secret_key":    "bar",
-		"source_ami":    "foo",
-		"instance_type": "foo",
-		"region":        "us-east-1",
-		"ssh_username":  "root",
-		"ami_name":      "foo",
+		"access_key":             "foo",
+		"secret_key":             "bar",
+		"source_ami":             "foo",
+		"instance_type":          "foo",
+		"region":                 "us-east-1",
+		"ssh_username":           "root",
+		"ami_name":               "foo",
+		"instance_pool_min_size": 1,
 	}
 }
 
@@ -119,6 +120,54 @@ func TestBuilderPrepare_InvalidShutdownBehavior(t *testing.T) {
 
 	// Test bad
 	config["shutdown_behavior"] = "foobar"
+	warnings, err = b.Prepare(config)
+	if len(warnings) > 0 {
+		t.Fatalf("bad: %#v", warnings)
+	}
+	if err == nil {
+		t.Fatal("should have error")
+	}
+}
+
+func TestBuilderPrepare_InstancePoolMinSize(t *testing.T) {
+	var b StoppedInstancePoolBuilder
+	config := testConfig()
+
+	// Test good
+	config["instance_pool_min_size"] = 1
+	warnings, err := b.Prepare(config)
+	if len(warnings) > 0 {
+		t.Fatalf("bad: %#v", warnings)
+	}
+	if err != nil {
+		t.Fatalf("should not have error: %s", err)
+	}
+
+	// Test bad
+	config["instance_pool_min_size"] = 0
+	b = StoppedInstancePoolBuilder{}
+	warnings, err = b.Prepare(config)
+	if len(warnings) > 0 {
+		t.Fatalf("bad: %#v", warnings)
+	}
+	if err == nil {
+		t.Fatal("should have error")
+	}
+
+	// Test bad
+	config["instance_pool_min_size"] = -1
+	b = StoppedInstancePoolBuilder{}
+	warnings, err = b.Prepare(config)
+	if len(warnings) > 0 {
+		t.Fatalf("bad: %#v", warnings)
+	}
+	if err == nil {
+		t.Fatal("should have error")
+	}
+
+	// Test bad
+	delete(config, "instance_pool_min_size")
+	b = StoppedInstancePoolBuilder{}
 	warnings, err = b.Prepare(config)
 	if len(warnings) > 0 {
 		t.Fatalf("bad: %#v", warnings)
