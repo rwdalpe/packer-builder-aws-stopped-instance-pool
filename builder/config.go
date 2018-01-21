@@ -6,8 +6,8 @@ import (
 )
 
 type StoppedInstancePoolBuilderConfig struct {
-	EbsConfig           amazonEbsBuilder.Config `mapstructure:",squash"`
-	InstancePoolMinSize int64                   `mapstructure:"instance_pool_min_size"`
+	amazonEbsBuilder.Config `mapstructure:",squash"`
+	InstancePoolMinSize     int64 `mapstructure:"instance_pool_min_size"`
 
 	ctx interpolate.Context
 }

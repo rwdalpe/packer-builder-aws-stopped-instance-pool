@@ -31,6 +31,10 @@ make get # to fetch dependencies into the project's GOPATH
 ```
 
 ```
+make test # to execute the project's tests
+```
+
+```
 make build # to build the project using the project's GOPATH
 ```
 

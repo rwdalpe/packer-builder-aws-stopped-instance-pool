@@ -33,20 +33,20 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 		return nil, err
 	}
 
-	if b.config.EbsConfig.PackerConfig.PackerForce {
-		b.config.EbsConfig.AMIForceDeregister = true
+	if b.config.Config.PackerConfig.PackerForce {
+		b.config.Config.AMIForceDeregister = true
 	}
 
 	// Accumulate any errors
 	var errs *packer.MultiError
-	errs = packer.MultiErrorAppend(errs, b.config.EbsConfig.AccessConfig.Prepare(&b.config.ctx)...)
+	errs = packer.MultiErrorAppend(errs, b.config.Config.AccessConfig.Prepare(&b.config.ctx)...)
 	errs = packer.MultiErrorAppend(errs,
-		b.config.EbsConfig.AMIConfig.Prepare(&b.config.EbsConfig.AccessConfig, &b.config.ctx)...)
-	errs = packer.MultiErrorAppend(errs, b.config.EbsConfig.BlockDevices.Prepare(&b.config.ctx)...)
-	errs = packer.MultiErrorAppend(errs, b.config.EbsConfig.RunConfig.Prepare(&b.config.ctx)...)
+		b.config.Config.AMIConfig.Prepare(&b.config.Config.AccessConfig, &b.config.ctx)...)
+	errs = packer.MultiErrorAppend(errs, b.config.Config.BlockDevices.Prepare(&b.config.ctx)...)
+	errs = packer.MultiErrorAppend(errs, b.config.Config.RunConfig.Prepare(&b.config.ctx)...)
 	errs = packer.MultiErrorAppend(errs, b.config.Prepare(&b.config.ctx)...)
 
-	if b.config.EbsConfig.IsSpotInstance() && (b.config.EbsConfig.AMIENASupport || b.config.EbsConfig.AMISriovNetSupport) {
+	if b.config.Config.IsSpotInstance() && (b.config.Config.AMIENASupport || b.config.Config.AMISriovNetSupport) {
 		errs = packer.MultiErrorAppend(errs,
 			fmt.Errorf("Spot instances do not support modification, which is required "+
 				"when either `ena_support` or `sriov_support` are set. Please ensure "+
@@ -57,7 +57,7 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 		return nil, errs
 	}
 
-	log.Println(common.ScrubConfig(b.config, b.config.EbsConfig.AccessKey, b.config.EbsConfig.SecretKey, b.config.EbsConfig.Token))
+	log.Println(common.ScrubConfig(b.config, b.config.Config.AccessKey, b.config.Config.SecretKey, b.config.Config.Token))
 	return nil, nil
 }
 

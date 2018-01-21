@@ -22,6 +22,9 @@ fmt:
 get: copy_src_to_gopath
 	cd "$(GOPROJSRCPATH)" && go get ./...
 
+test: clean fmt get
+	cd "$(GOPROJSRCPATH)" && go test ./...
+
 build: clean fmt get
 	go build $(PROJNAME)
 
