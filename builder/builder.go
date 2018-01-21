@@ -7,11 +7,13 @@ import (
 	"github.com/hashicorp/packer/helper/config"
 	"github.com/hashicorp/packer/packer"
 	"github.com/hashicorp/packer/template/interpolate"
+	"github.com/mitchellh/multistep"
 	"log"
 )
 
 type StoppedInstancePoolBuilder struct {
 	config StoppedInstancePoolBuilderConfig
+	runner multistep.Runner
 }
 
 func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, error) {
@@ -56,10 +58,13 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 	return nil, nil
 }
 
-func (s *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packer.Artifact, error) {
+func (b *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packer.Artifact, error) {
 	return *new(packer.Artifact), nil
 }
 
-func (s *StoppedInstancePoolBuilder) Cancel() {
-
+func (b *StoppedInstancePoolBuilder) Cancel() {
+	if b.runner != nil {
+		log.Println("Cancelling the step runner...")
+		b.runner.Cancel()
+	}
 }
