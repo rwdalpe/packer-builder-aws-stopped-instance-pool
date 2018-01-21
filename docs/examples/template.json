@@ -1,0 +1,29 @@
+{
+    "builders": [
+        {
+            "type": "aws-stopped-instance-pool",
+            "ami_name": "output-ami",
+            "instance_type": "t2.medium",
+            "region": "us-west-2",
+            "source_ami": "ami-used-by-instance-pool",
+            "iam_instance_profile": "instance-profile-used-by-instance-pool",
+            "security_group_id": "sg-id-used-by-instance-pool",
+            "ssh_keypair_name": "key-pair-used-by-instance-pool",
+            "ssh_private_key_file": "path-to-private-key-for-ssh_keypair_name",
+            "subnet-id": "subnet-used-by-instance-pool",
+            "instance_pool_min_size": 10,
+            "ami_block_device_mappings": {
+                "delete_on_termination": true,
+                "device_name": "/dev/xvdh",
+                "volume_size": 20,
+                "volume_type": "gp2"
+            },
+            "run-tags": {
+                "tag-to-match": "tag-value"
+            },
+            "tags": {
+                "ami-tag": "ami-tag-value"
+            }
+        }
+    ]
+}
