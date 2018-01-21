@@ -52,6 +52,10 @@ Copyright (C) 2018 Robert Winslow Dalpe
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
-file, You can obtain one at http://mozilla.org/MPL/2.0/.
+file, You can obtain one at <http://mozilla.org/MPL/2.0/>.
+
+Some Source Code has also been copied from the Hashicorp packer project, which
+is also available under the Mozilla Public License, v. 2.0 and can be retrieved
+from <https://github.com/hashicorp/packer>
 
 See [LICENSE](LICENSE) for more details.
