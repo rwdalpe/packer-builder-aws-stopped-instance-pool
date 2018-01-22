@@ -19,20 +19,27 @@ fmt:
 		-name "*.go" \
 		-exec go fmt {} \;
 
-get: copy_src_to_gopath
-	cd "$(GOPROJSRCPATH)" && go get ./...
+vendor: copy_src_to_gopath
+	cd "$(GOPROJSRCPATH)" && govendor sync
 
-test: clean fmt get
+test: clean fmt vendor
 	cd "$(GOPROJSRCPATH)" && go test ./...
 
-build: clean fmt get
+build: clean fmt vendor
 	go build $(PROJNAME)
 
-install: clean fmt get
+install: clean fmt vendor
 	go install $(PROJNAME)
 
 clean:
-	rm -rf $(GOPROJSRCPATH)
+	[[ -d "$(GOPROJSRCPATH)" ]] && \
+	find $(GOPROJSRCPATH) -maxdepth 1 \
+		-not -name ".*" \
+		-not -name "vendor"
+		-exec rm -rf {} \;
+
+clean-vendor:
+	rm -rf "$(GOPROJSRCPATH)/vendor"
 
 clean-go:
 	rm -rf $(GOPATHDIR)
