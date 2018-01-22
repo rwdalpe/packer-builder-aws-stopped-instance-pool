@@ -2,6 +2,7 @@ package builder
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	awscommon "github.com/hashicorp/packer/builder/amazon/common"
 	"github.com/hashicorp/packer/common"
 	"github.com/hashicorp/packer/helper/config"
@@ -59,6 +60,29 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 }
 
 func (b *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packer.Artifact, error) {
+	session, err := b.config.Session()
+	if err != nil {
+		return nil, err
+	}
+	ec2conn := ec2.New(session)
+
+	// If the subnet is specified but not the VpcId or AZ, try to determine them automatically
+	if b.config.SubnetId != "" && (b.config.AvailabilityZone == "" || b.config.VpcId == "") {
+		log.Printf("[INFO] Finding AZ and VpcId for the given subnet '%s'", b.config.SubnetId)
+		resp, err := ec2conn.DescribeSubnets(&ec2.DescribeSubnetsInput{SubnetIds: []*string{&b.config.SubnetId}})
+		if err != nil {
+			return nil, err
+		}
+		if b.config.AvailabilityZone == "" {
+			b.config.AvailabilityZone = *resp.Subnets[0].AvailabilityZone
+			log.Printf("[INFO] AvailabilityZone found: '%s'", b.config.AvailabilityZone)
+		}
+		if b.config.VpcId == "" {
+			b.config.VpcId = *resp.Subnets[0].VpcId
+			log.Printf("[INFO] VpcId found: '%s'", b.config.VpcId)
+		}
+	}
+
 	return *new(packer.Artifact), nil
 }
 
