@@ -106,6 +106,10 @@ func (b *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache p
 			EnableAMIENASupport:      b.config.AMIENASupport,
 			AmiFilters:               b.config.SourceAmiFilter,
 		},
+		&awscommon.StepKeyPair{
+			KeyPairName:    b.config.SSHKeyPairName,
+			PrivateKeyFile: b.config.RunConfig.Comm.SSHPrivateKey,
+		},
 	}
 
 	// Run!

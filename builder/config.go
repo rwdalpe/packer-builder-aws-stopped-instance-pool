@@ -21,6 +21,10 @@ func (c *StoppedInstancePoolBuilderConfig) Prepare(ctx *interpolate.Context) []e
 		errs = packer.MultiErrorAppend(errs, fmt.Errorf("Stopped instance pool min size must be greater than 0"))
 	}
 
+	if c.SSHKeyPairName == "" || c.RunConfig.Comm.SSHPrivateKey == "" {
+		errs = packer.MultiErrorAppend(errs, fmt.Errorf("SSH Key Pair name and private key file must be supplied"))
+	}
+
 	errs = packer.MultiErrorAppend(errs, c.Config.AccessConfig.Prepare(&c.ctx)...)
 	errs = packer.MultiErrorAppend(errs,
 		c.Config.AMIConfig.Prepare(&c.Config.AccessConfig, &c.ctx)...)
