@@ -12,6 +12,9 @@ import (
 	"log"
 )
 
+// The unique ID for this builder
+const BuilderId = "rwdalpe.awsstoppedinstancepoolbuilder"
+
 type StoppedInstancePoolBuilder struct {
 	config StoppedInstancePoolBuilderConfig
 	runner multistep.Runner
@@ -64,6 +67,7 @@ func (b *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache p
 	if err != nil {
 		return nil, err
 	}
+
 	ec2conn := ec2.New(session)
 
 	// If the subnet is specified but not the VpcId or AZ, try to determine them automatically
@@ -83,7 +87,43 @@ func (b *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache p
 		}
 	}
 
-	return *new(packer.Artifact), nil
+	// Setup the state bag and initial state for the steps
+	state := new(multistep.BasicStateBag)
+	state.Put("config", b.config)
+	state.Put("ec2", ec2conn)
+	state.Put("awsSession", session)
+	state.Put("hook", hook)
+	state.Put("ui", ui)
+
+	steps := []multistep.Step{
+		&awscommon.StepPreValidate{
+			DestAmiName:     b.config.Config.AMIName,
+			ForceDeregister: b.config.Config.AMIForceDeregister,
+		},
+	}
+
+	// Run!
+	b.runner = common.NewRunner(steps, b.config.Config.PackerConfig, ui)
+	b.runner.Run(state)
+
+	// If there was an error, return that
+	if rawErr, ok := state.GetOk("error"); ok {
+		return nil, rawErr.(error)
+	}
+
+	// If there are no AMIs, then just return
+	if _, ok := state.GetOk("amis"); !ok {
+		return nil, nil
+	}
+
+	// Build the artifact and return it
+	artifact := &awscommon.Artifact{
+		Amis:           state.Get("amis").(map[string]string),
+		BuilderIdValue: BuilderId,
+		Session:        session,
+	}
+
+	return artifact, nil
 }
 
 func (b *StoppedInstancePoolBuilder) Cancel() {
