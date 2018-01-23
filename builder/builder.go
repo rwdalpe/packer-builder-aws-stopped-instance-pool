@@ -39,15 +39,15 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 		return nil, err
 	}
 
-	if b.config.Config.PackerConfig.PackerForce {
-		b.config.Config.AMIForceDeregister = true
+	if b.config.PackerConfig.PackerForce {
+		b.config.AMIForceDeregister = true
 	}
 
 	// Accumulate any errors
 	var errs *packer.MultiError
 	errs = packer.MultiErrorAppend(errs, b.config.Prepare(&b.config.ctx)...)
 
-	if b.config.Config.IsSpotInstance() && (b.config.Config.AMIENASupport || b.config.Config.AMISriovNetSupport) {
+	if b.config.IsSpotInstance() && (b.config.AMIENASupport || b.config.AMISriovNetSupport) {
 		errs = packer.MultiErrorAppend(errs,
 			fmt.Errorf("Spot instances do not support modification, which is required "+
 				"when either `ena_support` or `sriov_support` are set. Please ensure "+
@@ -58,7 +58,7 @@ func (b *StoppedInstancePoolBuilder) Prepare(raws ...interface{}) ([]string, err
 		return nil, errs
 	}
 
-	log.Println(common.ScrubConfig(b.config, b.config.Config.AccessKey, b.config.Config.SecretKey, b.config.Config.Token))
+	log.Println(common.ScrubConfig(b.config, b.config.AccessKey, b.config.SecretKey, b.config.Token))
 	return nil, nil
 }
 
@@ -97,13 +97,19 @@ func (b *StoppedInstancePoolBuilder) Run(ui packer.Ui, hook packer.Hook, cache p
 
 	steps := []multistep.Step{
 		&awscommon.StepPreValidate{
-			DestAmiName:     b.config.Config.AMIName,
-			ForceDeregister: b.config.Config.AMIForceDeregister,
+			DestAmiName:     b.config.AMIName,
+			ForceDeregister: b.config.AMIForceDeregister,
+		},
+		&awscommon.StepSourceAMIInfo{
+			SourceAmi:                b.config.SourceAmi,
+			EnableAMISriovNetSupport: b.config.AMISriovNetSupport,
+			EnableAMIENASupport:      b.config.AMIENASupport,
+			AmiFilters:               b.config.SourceAmiFilter,
 		},
 	}
 
 	// Run!
-	b.runner = common.NewRunner(steps, b.config.Config.PackerConfig, ui)
+	b.runner = common.NewRunner(steps, b.config.PackerConfig, ui)
 	b.runner.Run(state)
 
 	// If there was an error, return that
