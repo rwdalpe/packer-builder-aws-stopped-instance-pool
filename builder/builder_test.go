@@ -43,7 +43,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// err = os.Remove(f.Name())
+	err = os.Remove(f.Name())
 
 	if err != nil {
 		panic(err)
