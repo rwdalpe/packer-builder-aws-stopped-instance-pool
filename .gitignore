@@ -1,4 +1,0 @@
-gopath/
-vendor/*
-!vendor/vendor.json
-packer-builder-aws-stopped-instance-pool*
